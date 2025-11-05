@@ -1,4 +1,10 @@
-class Cart:
+import sqlite3
+import sys
+import random
 
-    def __init__(self):
-        sample = ""
+
+class Cart:
+    
+    ## constructor
+    def __init__(self, databaseName="methods.db"):
+        self.databaseName = databaseName
