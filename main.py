@@ -63,6 +63,17 @@ def mainMenu(user, cart, inventory, history):
             print("Successful logout.")
 
         ## incorrect menu option
+
+        # possible fixes:
+        
+        elif(option == "1"):
+            user.viewAccountInfo()
+        elif(option == "2"):
+            inventory.viewInventory()
+        elif(option == "3"):
+            cart.viewCart(user.getUserID())
+        elif(option == "4"):
+            history.viewOrderHistory(user.getUserID())        
         else:
             print("That's not a menu option. Please try again.")
 
