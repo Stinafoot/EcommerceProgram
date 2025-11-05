@@ -2,7 +2,6 @@ import sqlite3
 import sys
 import random
 
-
 class Cart:
     
     ## constructor
@@ -77,3 +76,4 @@ class Cart:
         ## closes connection
         cursor.close()
         connection.close()
+
