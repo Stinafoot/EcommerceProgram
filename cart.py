@@ -12,8 +12,8 @@ class Cart:
         self.cartID = ""
 
     ## functional requirement functions
-    def addToCart(self, userID):
-        productID = input("Product ID to add to cart: ")
+    def addToCart(self, userID, ISBN, quantity):
+        ISBN = input("ISBN to add to cart: ")
         quantity = input("Quantity: ")
 
         ## setup database and query the database
@@ -31,7 +31,7 @@ class Cart:
 
         ## sets up query and uses user input 
         query = "INSERT INTO Cart (UserID, ProductID, Quantity)"
-        data = (userID, productID, quantity)
+        data = (userID, ISBN, quantity)
 
         cursor.execute(query, data)
         connection.commit()
@@ -72,7 +72,7 @@ class Cart:
         else:
             print("\nYour Cart:")
             for row in result:
-                print(f"Product ID: {row[0]}, Name: {row[1]}, Quantity: {row[2]}, Price: {row[3]}")
+                print(f"ISBN: {row[0]}, Name: {row[1]}, Quantity: {row[2]}, Price: {row[3]}")
 
         ## closes connection
         cursor.close()
