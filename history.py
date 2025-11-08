@@ -1,4 +1,6 @@
 class OrderHistory:
+def __init__(self, databaseName="methods.db"):
+        self.databaseName = databaseName
 
 #Retrieve and display a user's past orders.
 def view_order_history(self, user_name):
