@@ -1,6 +1,10 @@
 import sqlite3
 import sys
 import random
+from inventory import *
+from history import *
+
+
 
 class Cart:
     
@@ -11,37 +15,9 @@ class Cart:
         self.cartID = ""
 
     ## functional requirement functions
-    def addToCart(self, userID, ISBN, quantity):
-        ISBN = input("ISBN to add to cart: ")
-        quantity = input("Quantity: ")
-
-        ## setup database and query the database
-        try:
-            connection = sqlite3.connect(self.databaseName)
-
-        except:
-            print("Failed database connection.")
-
-            ## exits the program if unsuccessful
-            sys.exit()
-
-        ## cursor to send queries through
-        cursor = connection.cursor()
-
-        ## sets up query and uses user input 
-        query = "INSERT INTO Cart (UserID, ProductID, Quantity)"
-        data = (userID, ISBN, quantity)
-
-        cursor.execute(query, data)
-        connection.commit()
-
-        print("\nProduct added to cart successfully.")
-
-        ## closes connection
-        cursor.close()
-        connection.close()    
 
     def viewCart(self, userID):
+
         ## setup database and query the database
         try:
             connection = sqlite3.connect(self.databaseName)
@@ -65,6 +41,8 @@ class Cart:
         cursor.execute(query, data)
         result = cursor.fetchall()
 
+        ## nothing was grabbed
+
         if(len(result) == 0):
             print("\nYour cart is empty.")
 
@@ -77,3 +55,128 @@ class Cart:
         cursor.close()
         connection.close()
 
+
+    def addToCart(self, userID, ISBN, quantity):
+
+        ISBN = input("ISBN to add to cart: ")
+        quantity = input("Quantity: ")
+
+        ## setup database and query the database
+        try:
+            connection = sqlite3.connect(self.databaseName)
+
+        except:
+            print("Failed database connection.")
+
+            ## exits the program if unsuccessful
+            sys.exit()
+
+        ## cursor to send queries through
+        cursor = connection.cursor()
+
+        ## sets up query and uses user input 
+        query = "INSERT INTO Cart (UserID, ProductID, Quantity)"
+        data = (userID, ISBN, quantity)
+
+        cursor.execute(query, data)
+        connection.commit()
+
+        print("\nProduct added to cart.")
+
+        ## closes connection
+        cursor.close()
+        connection.close()    
+
+
+    def removeFromCart(self, userID, ISBN):
+
+        ISBN = input("ISBN to remove from cart: ")
+
+        ## setup database and query the database
+        try:
+            connection = sqlite3.connect(self.databaseName)
+
+        except:
+            print("Failed database connection.")
+
+            ## exits the program if unsuccessful
+            sys.exit()
+
+        ## cursor to send queries through
+        cursor = connection.cursor()
+
+        ## sets up query and uses user input 
+        query = "DELETE FROM Cart WHERE UserID=? AND ProductID=?"
+        data = (userID, ISBN)
+
+        cursor.execute(query, data)
+        connection.commit()
+
+        print("\nProduct was removed from cart.")
+
+        ## closes connection
+        cursor.close()
+        connection.close()
+    
+    def checkOut(self, userID):
+        ## setup database and query the database
+        try:
+            connection = sqlite3.connect(self.databaseName)
+
+        except:
+            print("Failed database connection.")
+
+            ## exits the program if unsuccessful
+            sys.exit()
+
+        ## cursor to send queries through
+        cursor = connection.cursor()
+
+
+        ## sets up query to get all cart items
+        query = """SELECT Product.ProductID, Cart.Quantity, Product.Price
+                    FROM Cart
+                    JOIN Product ON Cart.ProductID = Product.ProductID
+                    WHERE Cart.UserID=?"""
+        data = (userID,)
+        cursor.execute(query, data)
+        cartItems = cursor.fetchall()
+
+        ## Add if cart is emtpy code
+
+        if(len(cartItems) == 0):
+            print("\nYour cart is empty.")
+            cursor.close()
+            connection.close()
+            return
+            
+        ## create order
+
+        inventory = Inventory()
+        orders = OrderHistory()
+
+        orderID = orders.createOrder(userID)
+
+        ## process each cart item
+        for item in cartItems:
+
+            ISBN, quantity, price = item
+
+            ## add to order details
+            orders.addOrderItems(orderID, ISBN, quantity, price)
+
+            ## update inventory
+            inventory.decreaseStock(ISBN, quantity)
+
+        ## Clear the cart
+        query = "DELETE FROM Cart WHERE UserID=?"
+        data = (userID,)
+
+        cursor.execute(query, data)
+        connection.commit()
+
+        print("\nCheckout successful. Your cart is now empty.")
+
+        ## closes connection
+        cursor.close()
+        connection.close()
