@@ -59,17 +59,15 @@ def mainMenu(user, cart, inventory, history):
         ## logging out
         if(option == "0"):
             user.logout()
-        ## should send user to other sub-menus first?? 
-        ##not directly call the functions??
             print("Successful logout.")
         elif(option == "1"):
-            user.viewAccountInformation()
+            inventoryInformation() ## idk what to put here for account info
         elif(option == "2"):
-            inventory.viewInventory() ##inventoryInformation(user, inventory)
+            inventoryInformation(user, inventory)
         elif(option == "3"):
-            cart.viewCart(user.getUserID()) ##cartInformation(user, cart)
+            cartInformation(user, cart)
         elif(option =="4"):
-            history.viewOrderHistory(user.getUserID()) ##orderHistoryInformation(user, history)
+            orderHistoryInformation(user, history)
         ## incorrect menu option
         else:
             print("That's not a menu option. Please try again.")
@@ -135,7 +133,7 @@ def orderHistoryInformation(user, orderHistory):
             return
         elif(choice == "1"):
             OrderHistory.viewHistory(user.getUserID())
-        elif(choice == "2")
+        elif(choice == "2"):
             OrderHistory.viewOrder(user.getUserID())
         else:
             print("That is not a menu option. Please try again.")
@@ -151,4 +149,3 @@ def main():
     initialMenu()
 
 main()
-
