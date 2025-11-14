@@ -61,7 +61,7 @@ def mainMenu(user, cart, inventory, history):
             user.logout()
             print("Successful logout.")
         elif(option == "1"):
-            ## idk what to put here for account info
+            user.viewAccountInformation()
         elif(option == "2"):
             inventoryInformation(user, inventory)
         elif(option == "3"):
@@ -149,3 +149,4 @@ def main():
     initialMenu()
 
 main()
+
