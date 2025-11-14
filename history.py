@@ -1,29 +1,61 @@
+import sqlite3
+from datetime import datetime
+
 class OrderHistory:
-def __init__(self, databaseName="methods.db"):
+    def __init__(self, databaseName="methods.db"):
         self.databaseName = databaseName
 
-#Retrieve and display a user's past orders.
-def view_order_history(self, user_name):
-    connection = self.connect()
-    cursor = connection.cursor()
+    # Connect to the database
+    def connect(self):
+        return sqlite3.connect(self.databaseName)
 
-    cursor.execute("""
-        SELECT order_id, total, items, date
-        FROM orders
-        WHERE user_name = ?
-        ORDER BY date DESC
-    """, (user_name,))
+    # Save a completed order
+    def save_order(self, user_name, cart_items, total_cost):
+        """
+        Save an order to the database.
+        cart_items: dictionary like {"item_name": quantity, ...}
+        total_cost: float
+        """
+        connection = self.connect()
+        cursor = connection.cursor()
 
-    orders = cursor.fetchall()
-    connection.close()
+        # Convert cart items to a string for storage
+        items_string = ", ".join([f"{item} (x{qty})" for item, qty in cart_items.items()])
 
-    if not orders:
-        print(f"\nNo previous orders found for {user_name}.")
-    else:
-        print(f"\n--- Order History for {user_name} ---")
-        for order in orders:
-            print(f"Order ID: {order[0]}")
-            print(f"Date: {order[3]}")
-            print(f"Total: ${order[1]:.2f}")
-            print(f"Items: {order[2]}")
-            print("-" * 40)
+        timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+
+        cursor.execute("""
+            INSERT INTO orders (user_name, items, total, date)
+            VALUES (?, ?, ?, ?)
+        """, (user_name, items_string, total_cost, timestamp))
+
+        connection.commit()
+        connection.close()
+
+        print("\nOrder successfully saved to history!")
+
+    # View a user's past orders
+    def view_order_history(self, user_name):
+        connection = self.connect()
+        cursor = connection.cursor()
+
+        cursor.execute("""
+            SELECT order_id, total, items, date
+            FROM orders
+            WHERE user_name = ?
+            ORDER BY date DESC
+        """, (user_name,))
+
+        orders = cursor.fetchall()
+        connection.close()
+
+        if not orders:
+            print(f"\nNo previous orders found for {user_name}.")
+        else:
+            print(f"\n--- Order History for {user_name} ---")
+            for order in orders:
+                print(f"\nOrder ID: {order[0]}")
+                print(f"Date: {order[3]}")
+                print(f"Total: ${order[1]:.2f}")
+                print(f"Items: {order[2]}")
+                print("-" * 40)
