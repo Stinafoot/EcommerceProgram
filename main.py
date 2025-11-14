@@ -128,7 +128,7 @@ def orderHistoryInformation(user, orderHistory):
         print("0. Go Back")
         print("1. View Order History")
         print("2. View Order")
-        choic = input("Enter your choice: ")
+        choice = input("Enter your choice: ")
         print()
 
         if(choice == "0"):
@@ -151,3 +151,4 @@ def main():
     initialMenu()
 
 main()
+
