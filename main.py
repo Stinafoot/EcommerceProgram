@@ -61,7 +61,7 @@ def mainMenu(user, cart, inventory, history):
             user.logout()
             print("Successful logout.")
         elif(option == "1"):
-            inventoryInformation() ## idk what to put here for account info
+            ## idk what to put here for account info
         elif(option == "2"):
             inventoryInformation(user, inventory)
         elif(option == "3"):
@@ -75,7 +75,7 @@ def mainMenu(user, cart, inventory, history):
         print()
 
 def inventoryInformation(user, inventory):
-    while(user.getLoggedIn()): ##do I need this for this menu?? 
+    while(True): 
         print("Inventory Information:")
         print("0. Go Back")
         print("1. View Inventory")
@@ -95,7 +95,7 @@ def inventoryInformation(user, inventory):
         print()
 
 def cartInformation(user, cart):
-    while(user.getLoggedIn()): ##ditto
+    while(True): 
         print("Cart Information:")
         print("0. Go Back")
         print("1. View Cart")
@@ -110,9 +110,12 @@ def cartInformation(user, cart):
         elif(choice == "1"):
             cart.viewCart(user.getUserID())
         elif(choice == "2"):
-            cart.addToCart(user.getUserID())
+            ISBN = input("ISBN to add to cart: ")
+            quantity = input("Quantity: ")
+            cart.addToCart(user.getUserID(), ISBN, quantity)
         elif(choice == "3"):
-            cart.removeFromCart(user.getUserID())
+            ISBN = input("ISBN to remove from cart: ")
+            cart.removeFromCart(user.getUserID(), ISBN)
         elif(choice == "4"):
             cart.checkOut(user.getUserID())
         else:
@@ -121,7 +124,7 @@ def cartInformation(user, cart):
         print()
 
 def orderHistoryInformation(user, orderHistory):
-    while(user.getLoggedIn()): ##here to??
+    while(True): 
         print("Order History Information:")
         print("0. Go Back")
         print("1. View Order History")
@@ -139,9 +142,6 @@ def orderHistoryInformation(user, orderHistory):
             print("That is not a menu option. Please try again.")
         
         print()
-
-
-
 
 def main():
     print("Welcome to the online bookstore!\n")

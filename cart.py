@@ -58,9 +58,6 @@ class Cart:
 
     def addToCart(self, userID, ISBN, quantity):
 
-        ISBN = input("ISBN to add to cart: ")
-        quantity = input("Quantity: ")
-
         ## setup database and query the database
         try:
             connection = sqlite3.connect(self.databaseName)
@@ -89,8 +86,6 @@ class Cart:
 
 
     def removeFromCart(self, userID, ISBN):
-
-        ISBN = input("ISBN to remove from cart: ")
 
         ## setup database and query the database
         try:
