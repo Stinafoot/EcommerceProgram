@@ -59,25 +59,90 @@ def mainMenu(user, cart, inventory, history):
         ## logging out
         if(option == "0"):
             user.logout()
-
+        ## should send user to other sub-menus first?? 
+        ##not directly call the functions??
             print("Successful logout.")
-
-        ## incorrect menu option
-
-        # possible fixes:
-        
         elif(option == "1"):
-            user.viewAccountInfo()
+            user.viewAccountInformation()
         elif(option == "2"):
-            inventory.viewInventory()
+            inventory.viewInventory() ##inventoryInformation(user, inventory)
         elif(option == "3"):
-            cart.viewCart(user.getUserID())
-        elif(option == "4"):
-            history.viewOrderHistory(user.getUserID())        
+            cart.viewCart(user.getUserID()) ##cartInformation(user, cart)
+        elif(option =="4"):
+            history.viewOrderHistory(user.getUserID()) ##orderHistoryInformation(user, history)
+        ## incorrect menu option
         else:
             print("That's not a menu option. Please try again.")
 
         print()
+
+def inventoryInformation(user, inventory):
+    while(user.getLoggedIn()): ##do I need this for this menu?? 
+        print("Inventory Information:")
+        print("0. Go Back")
+        print("1. View Inventory")
+        print("2. Search Inventory")
+        choice = input("Enter your choice: ")
+        print()
+
+        if(choice == "0"):
+            return 
+        elif(choice == "1"):
+            inventory.viewInventory()
+        elif(choice == "2"):
+            inventory.searchInventory()
+        else:
+            print("That is not a menu option. Please try again.")
+        
+        print()
+
+def cartInformation(user, cart):
+    while(user.getLoggedIn()): ##ditto
+        print("Cart Information:")
+        print("0. Go Back")
+        print("1. View Cart")
+        print("2. Add items to cart")
+        print("3. Remove an item from cart")
+        print("4. Check Out")
+        choice = input("Enter your choice: ")
+        print()
+
+        if(choice == "0"):
+            return
+        elif(choice == "1"):
+            cart.viewCart(user.getUserID())
+        elif(choice == "2"):
+            cart.addToCart(user.getUserID())
+        elif(choice == "3"):
+            cart.removeFromCart(user.getUserID())
+        elif(choice == "4"):
+            cart.checkOut(user.getUserID())
+        else:
+            print("That is not a menu option. Please try again.")
+        
+        print()
+
+def orderHistoryInformation(user, orderHistory):
+    while(user.getLoggedIn()): ##here to??
+        print("Order History Information:")
+        print("0. Go Back")
+        print("1. View Order History")
+        print("2. View Order")
+        choic = input("Enter your choice: ")
+        print()
+
+        if(choice == "0"):
+            return
+        elif(choice == "1"):
+            OrderHistory.viewHistory(user.getUserID())
+        elif(choice == "2")
+            OrderHistory.viewOrder(user.getUserID())
+        else:
+            print("That is not a menu option. Please try again.")
+        
+        print()
+
+
 
 
 def main():
