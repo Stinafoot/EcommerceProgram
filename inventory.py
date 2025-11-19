@@ -33,8 +33,7 @@ class Inventory:
 
         print("\nInventory:")
         for column in result:
-            print(f"ISBN: {column[0]}, Title: {column[1]}, Author: {column[2]}, Genre: {column[3]}, 
-            Pages: {column[4]}, ReleaseDate: {column[5]}, Price: {column[6]}, Stock: {column[7]}")
+            print(f"ISBN: {column[0]}, Title: {column[1]}, Author: {column[2]}, Genre: {column[3]}, Pages: {column[4]}, Release Date: {column[5]}, Price: {column[6]}, Stock: {column[7]}")
         
         cursor.close()
         connection.close()
@@ -51,8 +50,8 @@ class Inventory:
 
         cursor = connection.cursor()
 
-        query = "SELECT ISBN, Title, Author, Genre, Pages, ReleaseDate, Price, Stock FROM Inventory WHERE Title LIKE ?"
-        data = ('%' + Title + '%')
+        query = "SELECT ISBN, Title, Author, Genre, Pages, Release Date, Price, Stock FROM Inventory WHERE Title LIKE ?"
+        data = ('%' + Title + '%',)
 
         cursor.execute(query, data)
         result = cursor.fetchall()
@@ -65,8 +64,7 @@ class Inventory:
 
         print("\nSearch Results")
         for column in result:
-            print(f"ISBN: {column[0]}, Title: {column[1]}, Author: {column[2]}, Genre: {column[3]}, 
-            Pages: {column[4]}, ReleaseDate: {column[5]}, Price: {column[6]}, Stock: {column[7]}")
+            print(f"ISBN: {column[0]}, Title: {column[1]}, Author: {column[2]}, Genre: {column[3]}, Pages: {column[4]}, Release Date: {column[5]}, Price: {column[6]}, Stock: {column[7]}")
 
         cursor.close()
         connection.close()
