@@ -2,26 +2,45 @@ import sqlite3
 from datetime import datetime
 
 class OrderHistory:
+
     def __init__(self, databaseName="methods.db"):
         self.databaseName = databaseName
+        self.create_table()
 
-    # Connect to the database
+    # database setup
     def connect(self):
         return sqlite3.connect(self.databaseName)
 
-    # Save a completed order
-    def save_order(self, user_name, cart_items, total_cost):
-        """
-        Save an order to the database.
-        cart_items: dictionary like {"item_name": quantity, ...}
-        total_cost: float
-        """
+    def create_table(self):
+        """Create orders table if it does not exist."""
         connection = self.connect()
         cursor = connection.cursor()
 
-        # Convert cart items to a string for storage
-        items_string = ", ".join([f"{item} (x{qty})" for item, qty in cart_items.items()])
+        cursor.execute("""
+            CREATE TABLE IF NOT EXISTS orders (
+                order_id INTEGER PRIMARY KEY AUTOINCREMENT,
+                user_name TEXT NOT NULL,
+                items TEXT NOT NULL,
+                total REAL NOT NULL,
+                date TEXT NOT NULL
+            )
+        """)
 
+        connection.commit()
+        connection.close()
+
+    # save order
+    def save_order(self, user_name, cart_items, total_cost):
+        """
+        Save an order to the database.
+        cart_items: dict such as {"item_name": quantity}
+        total_cost: float
+        """
+
+        connection = self.connect()
+        cursor = connection.cursor()
+
+        items_string = ", ".join([f"{item} (x{qty})" for item, qty in cart_items.items()])
         timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
 
         cursor.execute("""
@@ -34,7 +53,7 @@ class OrderHistory:
 
         print("\nOrder successfully saved to history!")
 
-    # View a user's past orders
+    #view order history
     def view_order_history(self, user_name):
         connection = self.connect()
         cursor = connection.cursor()
