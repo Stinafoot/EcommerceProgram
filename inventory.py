@@ -50,7 +50,7 @@ class Inventory:
 
         cursor = connection.cursor()
 
-        query = "SELECT ISBN, Title, Author, Genre, Pages, Release Date, Price, Stock FROM Inventory WHERE Title LIKE ?"
+        query = "SELECT ISBN, Title, Author, Genre, Pages, ReleaseDate, Price, Stock FROM Inventory WHERE Title LIKE ?"
         data = ('%' + Title + '%',)
 
         cursor.execute(query, data)
