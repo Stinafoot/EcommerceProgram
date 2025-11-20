@@ -30,9 +30,9 @@ class Cart:
         cursor = connection.cursor()
 
         ## sets up query and uses user input
-        query = """SELECT ISBN.ISBN, ISBN.title, Cart.Quantity, ISBN.Price 
+        query = """SELECT Inventory.ISBN, Inventory.Title, Cart.Quantity, Inventory.Price 
                    FROM Cart 
-                   JOIN ISBN ON Cart.ISBN = ISBN.ISBN 
+                   JOIN Inventory ON Cart.ISBN = Inventory.ISBN 
                    WHERE Cart.UserID=?"""
         data = (userID,)
 
