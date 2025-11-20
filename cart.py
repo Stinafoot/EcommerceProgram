@@ -30,7 +30,7 @@ class Cart:
         cursor = connection.cursor()
 
         ## sets up query and uses user input
-        query = """SELECT ISBN.ISBN, ISBN.Name, Cart.Quantity, ISBN.Price 
+        query = """SELECT ISBN.ISBN, ISBN.title, Cart.Quantity, ISBN.Price 
                    FROM Cart 
                    JOIN ISBN ON Cart.ISBN = ISBN.ISBN 
                    WHERE Cart.UserID=?"""
@@ -47,7 +47,7 @@ class Cart:
         else:
             print("\nYour Cart:")
             for row in result:
-                print(f"ISBN: {row[0]}, Name: {row[1]}, Quantity: {row[2]}, Price: {row[3]}")
+                print(f"ISBN: {row[0]}, Title: {row[1]}, Quantity: {row[2]}, Price: {row[3]}")
 
         ## closes connection
         cursor.close()
@@ -172,4 +172,5 @@ class Cart:
 
         ## closes connection
         cursor.close()
+
         connection.close()
