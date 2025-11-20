@@ -127,9 +127,9 @@ class Cart:
 
 
         ## sets up query to get all cart items
-        query = """SELECT ISBN.ISBN, Cart.Quantity, ISBN.Price
+        query = """SELECT Inventory.ISBN, Cart.Quantity, Inventory.Price
                     FROM Cart
-                    JOIN ISBN ON Cart.ISBN = ISBN.ISBN
+                    JOIN Inventory ON Cart.ISBN = Inventory.ISBN
                     WHERE Cart.UserID=?"""
         data = (userID,)
         cursor.execute(query, data)
