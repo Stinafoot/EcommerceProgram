@@ -12,8 +12,6 @@ class Cart:
     def __init__(self, databaseName="methods.db"):
         self.databaseName = databaseName
 
-        self.cartID = ""
-
     ## functional requirement functions
 
     def viewCart(self, userID):
@@ -56,7 +54,7 @@ class Cart:
         connection.close()
 
 
-    def addToCart(self, userID, ISBN, quantity):
+    def addToCart(self, userID, ISBN, quantity=1):
 
         ## setup database and query the database
         try:
@@ -72,7 +70,7 @@ class Cart:
         cursor = connection.cursor()
 
         ## sets up query and uses user input 
-        query = "INSERT INTO Cart (UserID, ISBN, Quantity)"
+        query = "INSERT INTO Cart (UserID, ISBN, Quantity) VALUES (?, ?, ?)"
         data = (userID, ISBN, quantity)
 
         cursor.execute(query, data)
