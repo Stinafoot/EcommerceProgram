@@ -32,9 +32,9 @@ class Cart:
         cursor = connection.cursor()
 
         ## sets up query and uses user input
-        query = """SELECT Product.ProductID, Product.Name, Cart.Quantity, Product.Price 
+        query = """SELECT ISBN.ISBN, ISBN.Name, Cart.Quantity, ISBN.Price 
                    FROM Cart 
-                   JOIN Product ON Cart.ProductID = Product.ProductID 
+                   JOIN ISBN ON Cart.ISBN = ISBN.ISBN 
                    WHERE Cart.UserID=?"""
         data = (userID,)
 
@@ -72,13 +72,13 @@ class Cart:
         cursor = connection.cursor()
 
         ## sets up query and uses user input 
-        query = "INSERT INTO Cart (UserID, ProductID, Quantity)"
+        query = "INSERT INTO Cart (UserID, ISBN, Quantity)"
         data = (userID, ISBN, quantity)
 
         cursor.execute(query, data)
         connection.commit()
 
-        print("\nProduct added to cart.")
+        print("\n Book added to cart.")
 
         ## closes connection
         cursor.close()
@@ -101,13 +101,13 @@ class Cart:
         cursor = connection.cursor()
 
         ## sets up query and uses user input 
-        query = "DELETE FROM Cart WHERE UserID=? AND ProductID=?"
+        query = "DELETE FROM Cart WHERE UserID=? AND ISBN=?"
         data = (userID, ISBN)
 
         cursor.execute(query, data)
         connection.commit()
 
-        print("\nProduct was removed from cart.")
+        print("\n Book was removed from cart.")
 
         ## closes connection
         cursor.close()
@@ -129,9 +129,9 @@ class Cart:
 
 
         ## sets up query to get all cart items
-        query = """SELECT Product.ProductID, Cart.Quantity, Product.Price
+        query = """SELECT ISBN.ISBN, Cart.Quantity, ISBN.Price
                     FROM Cart
-                    JOIN Product ON Cart.ProductID = Product.ProductID
+                    JOIN ISBN ON Cart.ISBN = ISBN.ISBN
                     WHERE Cart.UserID=?"""
         data = (userID,)
         cursor.execute(query, data)
