@@ -3,6 +3,7 @@ import sys
 import random
 from inventory import *
 from history import *
+from datetime import datetime
 
 
 
@@ -147,19 +148,26 @@ class Cart:
 
         inventory = Inventory()
         orders = OrderHistory()
+        date = date.today().strftime("%m%d%Y %H:%M")
 
-        orderID = orders.createOrder(userID)
+        orderID = orders.createOrder(userID, date)
+
+        cost = 0.00
 
         ## process each cart item
         for item in cartItems:
 
             ISBN, quantity, price = item
 
+            cost = price * quantity
+
             ## add to order details
-            orders.addOrderItems(orderID, ISBN, quantity, price)
+            orders.addOrderItems(orderID, ISBN, quantity, cost)
 
             ## update inventory
             inventory.decreaseStock(ISBN, quantity)
+
+
 
         ## Clear the cart
         query = "DELETE FROM Cart WHERE UserID=?"
