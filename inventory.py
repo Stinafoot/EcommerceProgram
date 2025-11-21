@@ -81,7 +81,7 @@ class Inventory:
         cursor = connection.cursor()
 
         query = "SELECT Stock FROM Inventory WHERE ISBN=?"
-        cursor.execute(query, (ISBN))
+        cursor.execute(query, (IBSN,)) ##this is wrongggg fix it :(
         result = cursor.fetchone()
 
         if result is None:
@@ -90,10 +90,10 @@ class Inventory:
             connection.close()
             return False
 
-        stock = result[0]
+        stock = result[0] ## changed from stock
 
 
-        if stock < quantity:
+        if stock < quantity: ##changed from stock < quantity
             print(f"Not enough copies in stock. Current copy count: {stock}")
             cursor.close()
             connection.close()
