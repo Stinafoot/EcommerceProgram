@@ -162,10 +162,10 @@ class Cart:
 
 
         from datetime import datetime
-        date = datetime.now().strftime("%m%d%Y %H:%M")
+        date = datetime.now().strftime("%m/%d/%Y %H:%M")
         #print(date)
 
-        orderID = orderHistory.createOrder("userID", 0, 0.00, "date")
+        orderID = orderHistory.createOrder("userID", quantity, cost, "date")
 
         ## process each cart item
         for item in cartItems:
