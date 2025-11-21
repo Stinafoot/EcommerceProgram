@@ -6,43 +6,10 @@ class OrderHistory:
 
     def __init__(self, databaseName="methods.db"):
         self.databaseName = databaseName
-        self.create_tables()
 
-    # connect to database
-    def connect(self):
-        return sqlite3.connect(self.databaseName)
-
-    # create Orders + OrderItems tables
-    def create_tables(self):
-        conn = self.connect()
-        cur = conn.cursor()
-
-        # Orders table
-        cur.execute("""
-            CREATE TABLE IF NOT EXISTS Orders (
-                OrderNumber TEXT PRIMARY KEY,
-                UserID TEXT NOT NULL,
-                ItemNumber INTEGER NOT NULL,
-                Cost REAL NOT NULL,
-                Date TEXT NOT NULL
-            );
-        """)
-
-        # OrderItems table
-        cur.execute("""
-            CREATE TABLE IF NOT EXISTS OrderItems (
-                OrderNumber TEXT NOT NULL,
-                ISBN TEXT NOT NULL,
-                Quantity INTEGER NOT NULL
-            );
-        """)
-
-        conn.commit()
-        conn.close()
-
-    # view full order history
+   #view orders of users 
     def viewHistory(self, userID):
-        conn = self.connect()
+        conn = sqlite3.connect(self.databaseName)
         cur = conn.cursor()
 
         cur.execute("""
@@ -67,11 +34,12 @@ class OrderHistory:
             print(f"Date: {order[3]}")
             print("-" * 40)
 
-    # view details for one order
+    #view specific orders
     def viewOrder(self, userID, orderID):
-        conn = self.connect()
+        conn = sqlite3.connect(self.databaseName)
         cur = conn.cursor()
 
+        # verify the order belongs to the user
         cur.execute("""
             SELECT OrderNumber, ItemNumber, Cost, Date
             FROM Orders
@@ -85,14 +53,14 @@ class OrderHistory:
             conn.close()
             return
 
-        # fetch items
+        # fetch items included in this order
         cur.execute("""
             SELECT ISBN, Quantity
             FROM OrderItems
             WHERE OrderNumber = ?
         """, (orderID,))
-        items = cur.fetchall()
 
+        items = cur.fetchall()
         conn.close()
 
         print("\n--- ORDER DETAILS ---")
@@ -102,24 +70,24 @@ class OrderHistory:
         print(f"Date: {order[3]}\n")
 
         print("Books Purchased:")
-        for item in items:
-            print(f"ISBN: {item[0]} | Quantity: {item[1]}")
+        for isbn, qty in items:
+            print(f"ISBN: {isbn} | Quantity: {qty}")
 
         print("-" * 40)
 
-    # create order header
+   #creates the order header
     def createOrder(self, userID, quantity, cost, date):
-        conn = self.connect()
+        conn = sqlite3.connect(self.databaseName)
         cur = conn.cursor()
 
-        # generate safe order #
+        # Generate unique order number
         while True:
             orderID = str(random.randint(100000, 999999))
             cur.execute("SELECT OrderNumber FROM Orders WHERE OrderNumber = ?", (orderID,))
             if cur.fetchone() is None:
                 break
 
-        # insert order
+        # Insert new order
         cur.execute("""
             INSERT INTO Orders (OrderNumber, UserID, ItemNumber, Cost, Date)
             VALUES (?, ?, ?, ?, ?)
@@ -130,100 +98,26 @@ class OrderHistory:
 
         return orderID
 
-    # copy items from cart to OrderItems
+   #add order items
     def addOrderItems(self, userID, orderID):
-        conn = self.connect()
+        conn = sqlite3.connect(self.databaseName)
         cur = conn.cursor()
 
+        # Pull items from Cart table
         cur.execute("""
             SELECT ISBN, Quantity
             FROM Cart
             WHERE UserID = ?
         """, (userID,))
-        cartItems = cur.fetchall()
 
-        for item in cartItems:
+        items = cur.fetchall()
+
+        # Insert items into OrderItems
+        for isbn, qty in items:
             cur.execute("""
                 INSERT INTO OrderItems (OrderNumber, ISBN, Quantity)
                 VALUES (?, ?, ?)
-            """, (orderID, item[0], item[1]))
+            """, (orderID, isbn, qty))
 
         conn.commit()
         conn.close()
-
-    # CLEAR HISTORY (optional)
-    def clearHistory(self, userID):
-        conn = self.connect()
-        cur = conn.cursor()
-
-        cur.execute("DELETE FROM OrderItems WHERE OrderNumber IN (SELECT OrderNumber FROM Orders WHERE UserID=?)", (userID,))
-        cur.execute("DELETE FROM Orders WHERE UserID=?", (userID,))
-
-        conn.commit()
-        conn.close()
-        print("\nOrder history cleared.")
-
-    # ALL-IN-ONE CHECKOUT FUNCTION
-    def checkout(self, userID, inventory):
-        conn = self.connect()
-        cur = conn.cursor()
-
-        # get cart items
-        cur.execute("""
-            SELECT ISBN, Quantity 
-            FROM Cart
-            WHERE UserID = ?
-        """, (userID,))
-        cartItems = cur.fetchall()
-
-        if not cartItems:
-            print("\nYour cart is empty.")
-            conn.close()
-            return
-
-        # calculate total + validate stock
-        totalCost = 0
-        totalItems = 0
-
-        for isbn, qty in cartItems:
-            # price lookup
-            cur.execute("SELECT Price, Stock FROM Inventory WHERE ISBN = ?", (isbn,))
-            result = cur.fetchone()
-
-            if result is None:
-                print(f"\nError: ISBN {isbn} no longer exists.")
-                conn.close()
-                return
-
-            price, stock = result
-            if qty > stock:
-                print(f"\nNot enough stock for ISBN {isbn}. Available: {stock}")
-                conn.close()
-                return
-
-            totalCost += price * qty
-            totalItems += qty
-
-        # CREATE ORDER
-        date = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-        orderID = self.createOrder(userID, totalItems, totalCost, date)
-
-        # add to OrderItems
-        self.addOrderItems(userID, orderID)
-
-        # decrease inventory
-        for isbn, qty in cartItems:
-            cur.execute("UPDATE Inventory SET Stock = Stock - ? WHERE ISBN = ?", (qty, isbn))
-
-        # clear cart
-        cur.execute("DELETE FROM Cart WHERE UserID = ?", (userID,))
-
-        conn.commit()
-        conn.close()
-
-        print("\n=== Checkout Successful! ===")
-        print(f"Order ID: {orderID}")
-        print(f"Total Items: {totalItems}")
-        print(f"Total Cost: ${totalCost:.2f}")
-        print(f"Date: {date}")
-        print("============================")
