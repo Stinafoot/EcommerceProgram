@@ -123,7 +123,7 @@ def cartInformation(user, cart):
         
         print()
 
-def orderHistoryInformation(user, orderHistory):
+def orderHistoryInformation(user, history):
     while(True): 
         print("Order History Information:")
         print("0. Go Back")
@@ -135,9 +135,10 @@ def orderHistoryInformation(user, orderHistory):
         if(choice == "0"):
             return
         elif(choice == "1"):
-            OrderHistory.viewHistory(user.getUserID())
+            history.viewHistory(user.getUserID())
         elif(choice == "2"):
-            OrderHistory.viewOrder(user.getUserID())
+            orderID = input("Enter the Order Number you want to view: ")
+            history.viewOrder(user.getUserID(), orderID)
         else:
             print("That is not a menu option. Please try again.")
         
@@ -149,4 +150,3 @@ def main():
     initialMenu()
 
 main()
-
