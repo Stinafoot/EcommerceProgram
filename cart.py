@@ -171,7 +171,7 @@ class Cart:
             ISBN, quantity, price = item
 
             ## add to order details
-            orders.addOrderItems(orderID, ISBN, quantity, cost)
+            orders.addOrderItems(orderID, ISBN, quantity, price)
 
             ## update inventory
             inventory.decreaseStock(ISBN, quantity)
