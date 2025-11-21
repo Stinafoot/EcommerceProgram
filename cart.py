@@ -146,24 +146,24 @@ class Cart:
             
         ## create order
 
-        inventory = Inventory()
-        orders = OrderHistory()
+        inventory = Inventory(self.databaseName)
+        orders = OrderHistory(self.databaseName)
 
 
         cost = 0.0
-        totalItems = 0
+        numItems = 0
 
         for item in cartItems:
             qty = int(item[1])
             price = float(item[2])
-            totalItems += qty
+            numItems += qty
             cost += qty * price
 
 
         from datetime import datetime
         date = datetime.now().strftime("%m%d%Y %H:%M")
 
-        orderID = orders.createOrder(userID, cost, date)
+        orderID = OrderHistory.createOrder(userID, numItems, cost, date)
 
         ## process each cart item
         for item in cartItems:
@@ -171,7 +171,7 @@ class Cart:
             ISBN, quantity, price = item
 
             ## add to order details
-            orders.addOrderItems(orderID, ISBN, quantity, price)
+            orders.addOrderItems(userID, orderID)
 
             ## update inventory
             inventory.decreaseStock(ISBN, quantity)
@@ -191,3 +191,6 @@ class Cart:
         cursor.close()
 
         connection.close()
+
+    def checkout(self, userID):
+        self.checkOut(userID)
