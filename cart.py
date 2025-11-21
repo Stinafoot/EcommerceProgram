@@ -77,7 +77,7 @@ class Cart:
         cursor.execute(query, data)
         connection.commit()
 
-        print("\n Book added to cart.")
+        print("\nBook added to cart.")
 
         ## closes connection
         cursor.close()
@@ -106,7 +106,7 @@ class Cart:
         cursor.execute(query, data)
         connection.commit()
 
-        print("\n Book was removed from cart.")
+        print("\nBook was removed from cart.")
 
         ## closes connection
         cursor.close()
@@ -146,24 +146,26 @@ class Cart:
             
         ## create order
 
-        inventory = Inventory(self.databaseName)
-        orders = OrderHistory(self.databaseName)
+        inventory = Inventory()
+        orderHistory = OrderHistory()
+        
 
 
         cost = 0.0
-        numItems = 0
+        quantity = 0
 
         for item in cartItems:
             qty = int(item[1])
             price = float(item[2])
-            numItems += qty
+            quantity += qty
             cost += qty * price
 
 
         from datetime import datetime
         date = datetime.now().strftime("%m%d%Y %H:%M")
+        #print(date)
 
-        orderID = OrderHistory.createOrder(userID, numItems, cost, date)
+        orderID = orderHistory.createOrder("userID", 0, 0.00, "date")
 
         ## process each cart item
         for item in cartItems:
@@ -171,12 +173,10 @@ class Cart:
             ISBN, quantity, price = item
 
             ## add to order details
-            orders.addOrderItems(userID, orderID)
+            orderHistory.addOrderItems(userID, orderID)
 
             ## update inventory
             inventory.decreaseStock(ISBN, quantity)
-
-
 
         ## Clear the cart
         query = "DELETE FROM Cart WHERE UserID=?"
