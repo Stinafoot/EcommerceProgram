@@ -1,109 +1,164 @@
 import sqlite3
+import random
 from datetime import datetime
 
 class OrderHistory:
 
     def __init__(self, databaseName="methods.db"):
         self.databaseName = databaseName
-        self.create_table()
+        self.create_tables()
 
-    # database setup
+    # connect to database
     def connect(self):
         return sqlite3.connect(self.databaseName)
 
-    def create_table(self):
-        """Create the orders table if it does not exist."""
-        connection = self.connect()
-        cursor = connection.cursor()
+    # create Orders + OrderItems tables
+    def create_tables(self):
+        conn = self.connect()
+        cur = conn.cursor()
 
-        cursor.execute("""
-            CREATE TABLE IF NOT EXISTS orders (
-                order_id INTEGER PRIMARY KEY AUTOINCREMENT,
-                user_id TEXT NOT NULL,
-                items TEXT NOT NULL,
-                total REAL NOT NULL,
-                date TEXT NOT NULL
-            )
+        # Orders table
+        cur.execute("""
+            CREATE TABLE IF NOT EXISTS Orders (
+                OrderNumber TEXT PRIMARY KEY,
+                UserID TEXT NOT NULL,
+                ItemNumber INTEGER NOT NULL,
+                Cost REAL NOT NULL,
+                Date TEXT NOT NULL
+            );
         """)
 
-        connection.commit()
-        connection.close()
+        # OrderItems table
+        cur.execute("""
+            CREATE TABLE IF NOT EXISTS OrderItems (
+                OrderNumber TEXT NOT NULL,
+                ISBN TEXT NOT NULL,
+                Quantity INTEGER NOT NULL
+            );
+        """)
 
-    #save order
-    def saveOrder(self, user_id, cart_items, total_cost):
-        """
-        Saves a completed order:
-        cart_items: {"ISBN123": qty, "ISBN999": qty}
-        total_cost: float
-        """
-        connection = self.connect()
-        cursor = connection.cursor()
+        conn.commit()
+        conn.close()
 
-        items_string = ", ".join([f"{item} (x{qty})"
-                                  for item, qty in cart_items.items()])
-        timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+    
+    # View order history 
+    def viewHistory(self, userID):
+        conn = self.connect()
+        cur = conn.cursor()
 
-        cursor.execute("""
-            INSERT INTO orders (user_id, items, total, date)
-            VALUES (?, ?, ?, ?)
-        """, (user_id, items_string, total_cost, timestamp))
+        cur.execute("""
+            SELECT OrderNumber, ItemNumber, Cost, Date
+            FROM Orders
+            WHERE UserID = ?
+            ORDER BY Date DESC
+        """, (userID,))
 
-        connection.commit()
-        connection.close()
-
-        print("\nOrder saved to history!")
-
-    #view order history
-    def viewHistory(self, user_id):
-        connection = self.connect()
-        cursor = connection.cursor()
-
-        cursor.execute("""
-            SELECT order_id, items, total, date
-            FROM orders
-            WHERE user_id = ?
-            ORDER BY date DESC
-        """, (user_id,))
-
-        orders = cursor.fetchall()
-        connection.close()
+        orders = cur.fetchall()
+        conn.close()
 
         if not orders:
-            print("\nNo order history found.")
+            print("\nNo previous orders found.")
             return
 
-        print("\n--- Order History ---")
+        print("\n--- ORDER HISTORY ---")
         for order in orders:
-            print(f"\nOrder ID: {order[0]}")
-            print(f"Date: {order[3]}")
-            print(f"Total: ${order[2]:.2f}")
+            print(f"\nOrder Number: {order[0]}")
             print(f"Items: {order[1]}")
+            print(f"Cost: ${order[2]:.2f}")
+            print(f"Date: {order[3]}")
             print("-" * 40)
 
-    # view a single order
-    def viewOrder(self, user_id):
-        order_id = input("Enter Order ID to view: ")
+    
+    #  VIEW SINGLE ORDER
+    
+    def viewOrder(self, userID, orderID):
+        conn = self.connect()
+        cur = conn.cursor()
 
-        connection = self.connect()
-        cursor = connection.cursor()
+        # confirm order belongs to user
+        cur.execute("""
+            SELECT OrderNumber, ItemNumber, Cost, Date
+            FROM Orders
+            WHERE UserID = ? AND OrderNumber = ?
+        """, (userID, orderID))
 
-        cursor.execute("""
-            SELECT order_id, items, total, date
-            FROM orders
-            WHERE user_id = ? AND order_id = ?
-        """, (user_id, order_id))
-
-        order = cursor.fetchone()
-        connection.close()
+        order = cur.fetchone()
 
         if order is None:
-            print("\nOrder not found.")
+            print("\nError: Order does not exist or does not belong to this user.")
+            conn.close()
             return
 
-        print("\n--- Order Details ---")
-        print(f"Order ID: {order[0]}")
-        print(f"Date: {order[3]}")
-        print(f"Total: ${order[2]:.2f}")
-        print(f"Items: {order[1]}")
+        # fetch order items
+        cur.execute("""
+            SELECT ISBN, Quantity
+            FROM OrderItems
+            WHERE OrderNumber = ?
+        """, (orderID,))
+        items = cur.fetchall()
+
+        conn.close()
+
+        print("\n--- ORDER DETAILS ---")
+        print(f"Order #: {order[0]}")
+        print(f"Items Total: {order[1]}")
+        print(f"Order Cost: ${order[2]:.2f}")
+        print(f"Date: {order[3]}\n")
+
+        # show items
+        print("Books Purchased:")
+        for item in items:
+            print(f"ISBN: {item[0]} | Quantity: {item[1]}")
+
         print("-" * 40)
 
+   
+    #  CREATE ORDER (used by Cart checkout)
+   
+    def createOrder(self, userID, quantity, cost, date):
+        conn = self.connect()
+        cur = conn.cursor()
+
+        # generate unique random orderID
+        while True:
+            orderID = str(random.randint(100000, 999999))
+            cur.execute("SELECT OrderNumber FROM Orders WHERE OrderNumber = ?", (orderID,))
+            if cur.fetchone() is None:
+                break
+
+        # insert into Orders
+        cur.execute("""
+            INSERT INTO Orders (OrderNumber, UserID, ItemNumber, Cost, Date)
+            VALUES (?, ?, ?, ?, ?)
+        """, (orderID, userID, quantity, cost, date))
+
+        conn.commit()
+        conn.close()
+
+        return orderID  # VERY IMPORTANT for checkout
+
+    
+    #  ADD ORDER ITEMS (copies items from cart → OrderItems)
+    
+    def addOrderItems(self, userID, orderID):
+        conn = self.connect()
+        cur = conn.cursor()
+
+        # get items from Cart table
+        cur.execute("""
+            SELECT ISBN, Quantity 
+            FROM Cart
+            WHERE UserID = ?
+        """, (userID,))
+
+        cartItems = cur.fetchall()
+
+        # copy into OrderItems table
+        for item in cartItems:
+            cur.execute("""
+                INSERT INTO OrderItems (OrderNumber, ISBN, Quantity)
+                VALUES (?, ?, ?)
+            """, (orderID, item[0], item[1]))
+
+        conn.commit()
+        conn.close()
