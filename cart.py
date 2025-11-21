@@ -3,7 +3,7 @@ import sys
 import random
 from inventory import *
 from history import *
-from datetime import datetime
+
 
 
 
@@ -148,18 +148,27 @@ class Cart:
 
         inventory = Inventory()
         orders = OrderHistory()
-        date = date.today().strftime("%m%d%Y %H:%M")
 
-        orderID = orders.createOrder(userID, date)
 
-        cost = 0.00
+        cost = 0.0
+        totalItems = 0
+
+        for item in cartItems:
+            qty = int(item[1])
+            price = float(item[2])
+            totalItems += qty
+            cost += qty * price
+
+
+        from datetime import datetime
+        date = datetime.now().strftime("%m%d%Y %H:%M")
+
+        orderID = orders.createOrder(userID, cost, date)
 
         ## process each cart item
         for item in cartItems:
 
             ISBN, quantity, price = item
-
-            cost = price * quantity
 
             ## add to order details
             orders.addOrderItems(orderID, ISBN, quantity, cost)
