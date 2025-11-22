@@ -163,7 +163,7 @@ class Cart:
         date = datetime.now().strftime("%m/%d/%Y %H:%M")
         #print(date)
 
-        orderID = orderHistory.createOrder("userID", quantity, cost, "date")
+        orderID = orderHistory.createOrder(userID, quantity, cost, date)
 
         # process each cart item
         for item in cartItems:
