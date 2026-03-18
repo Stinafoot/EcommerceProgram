@@ -1,2 +1,2 @@
 # CodingAssignmentEcommerce
-Coding Assignment Ecommerce Due Nov 21st
+Coding Assignment Ecommerce
