@@ -85,5 +85,5 @@ Improved order ID system (UUIDs)
 
 Built as a university project demonstrating full-stack backend logic using Python and SQLite.
 @Stinafoot
-@
-@
+@LilacLuLu31 
+@graciemsu
